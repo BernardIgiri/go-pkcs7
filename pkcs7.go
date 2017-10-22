@@ -18,7 +18,7 @@ func Unpad(padded []byte, size int) ([]byte, error) {
 		return nil, errors.New("Padded value wasn't in correct size.")
 	}
 
-	bufLen := size - int(padded[size - 1])
+	bufLen := size - int(padded[len(padded) - 1])
 	buf := make([]byte, bufLen)
 	copy(buf, padded[:bufLen])
 	return buf, nil
