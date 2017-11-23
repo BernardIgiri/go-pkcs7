@@ -1,19 +1,13 @@
 # go-pkcs7
 
-Simple package to pad and unpad data with PKCS7.
+Simple package to pad and unpad data with PKCS7 padding for use in AES encryption.
 
-## Details
-
-It's common to use PKCS7 to pad and unpad data when using AES encryption. As far as I can tell, though Go has AES-128 encryption in its standard packages, it doesn't offer PKCS7 padding.
-
-This package is designed to use while you're using the standard AES implementation.
-
-## Usage
+# Usage
 
 ```go
 import (
 	"log"
-	"github.com/richkzad/go-pkcs7"
+	"github.com/bernardigiri/go-pkcs7"
 )
 
 original := []byte("hello")
