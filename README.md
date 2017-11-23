@@ -2,6 +2,8 @@
 
 Simple package to pad and unpad data with PKCS7 padding for use in AES encryption.
 
+I forked this project from <https://github.com/richkzad/go-pkcs7> and will actively maintain this fork as long as I can.
+
 # Usage
 
 ```go
