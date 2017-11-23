@@ -3,6 +3,7 @@ package pkcs7_test
 import (
 	"testing"
 
+	"github.com/bernardigiri/cfgcrypt/encryption"
 	"github.com/bernardigiri/go-pkcs7"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,8 +14,8 @@ const stepSize = 2
 
 func TestPad(t *testing.T) {
 	testData := []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	for size := smallest; size<=largest; size*=stepSize {
-		for dataLen:=len(testData)-1; dataLen>=0; dataLen-- {
+	for size := smallest; size <= largest; size *= stepSize {
+		for dataLen := len(testData) - 1; dataLen >= 0; dataLen-- {
 			data := testData[:dataLen]
 			results, err := pkcs7.Pad(data, size)
 			assert.Nil(t, err)
@@ -23,11 +24,10 @@ func TestPad(t *testing.T) {
 	}
 }
 
-
 func TestPadUnpad(t *testing.T) {
 	testData := []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	for size := smallest; size<largest; size*=stepSize {
-		for dataLen:=len(testData)-1; dataLen>=0; dataLen-- {
+	for size := smallest; size < largest; size *= stepSize {
+		for dataLen := len(testData) - 1; dataLen >= 0; dataLen-- {
 			expected := testData[:dataLen]
 			padded, err := pkcs7.Pad(expected, size)
 			assert.Nil(t, err)
@@ -38,46 +38,76 @@ func TestPadUnpad(t *testing.T) {
 	}
 }
 
+func TestPad16(t *testing.T) {
+	expected := []byte{
+		'B', 'B', 'B', 'B',
+		'B', 'B', 'B', 'B',
+		'B', 'B', 'B', 5,
+		5, 5, 5, 5,
+	}
+	data := []byte("BBBBBBBBBBB")
+	actual, err := encryption.Pad(data, 16)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, actual)
+}
+
+func TestPad32(t *testing.T) {
+	expected := []byte{
+		'B', 'B', 'B', 'B',
+		'B', 'B', 'B', 'B',
+		'B', 'B', 'B', 21,
+		21, 21, 21, 21,
+		21, 21, 21, 21,
+		21, 21, 21, 21,
+		21, 21, 21, 21,
+		21, 21, 21, 21,
+	}
+	data := []byte("BBBBBBBBBBB")
+	actual, err := encryption.Pad(data, 32)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, actual)
+}
+
 func TestUnpad16(t *testing.T) {
 	data := []byte{
-		0x2A,0x2A,0x2A,0x2A,
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x3,0x3,0x3,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x3, 0x3, 0x3,
 	}
 	expected := []byte{
-		0x2A,0x2A,0x2A,0x2A,
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
 		0x2A,
 	}
 	actual, err := pkcs7.Unpad(data, 16)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, actual)
-} 
+}
 
 func TestUnpad32(t *testing.T) {
 	data := []byte{
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x3,0x3,0x3,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x3, 0x3, 0x3,
 	}
 	expected := []byte{
-		0x2A,0x2A,0x2A,0x2A,
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
-		0x2A,0x2A,0x2A,0x2A, 
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
+		0x2A, 0x2A, 0x2A, 0x2A,
 		0x2A,
 	}
 	actual, err := pkcs7.Unpad(data, 32)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, actual)
-} 
+}

@@ -1,23 +1,35 @@
 package pkcs7
 
-import "errors"
+import (
+	"bytes"
+	"errors"
+)
 
-func Pad(buf []byte, size int) ([]byte, error) {
-	bufLen := len(buf)
-	padLen := size - bufLen%size
-	padded := make([]byte, bufLen + padLen)
-	copy(padded, buf)
-	for i := 0; i < padLen; i++ {
-		padded[bufLen + i] = byte(padLen)
-	}
-	return padded, nil
+func isPow2(num int) bool {
+	return num != 0 && ((num & (num - 1)) == 0)
 }
 
-func Unpad(padded []byte, size int) ([]byte, error) {
-	if len(padded) % size != 0 {
-		return nil, errors.New("Padded value wasn't in correct size.")
+// Pad applies pkcs7 padding
+func Pad(buf []byte, size int) ([]byte, error) {
+	if !isPow2(size) {
+		return nil, errors.New("size is not power of 2")
 	}
+	bufLen := len(buf)
+	padLen := size - bufLen%size
+	padText := bytes.Repeat([]byte{byte(padLen)}, padLen)
+	return append(buf, padText...), nil
+}
 
-	bufLen := len(padded) - int(padded[len(padded) - 1])
+// Unpad removes pkcs7 padding
+func Unpad(padded []byte, size int) ([]byte, error) {
+	if !isPow2(size) {
+		return nil, errors.New("size is not power of 2")
+	}
+	if len(padded)%size != 0 {
+		return nil, errors.New("padded value wasn't in correct size")
+	}
+	paddedLen := len(padded)
+	padLen := int(padded[paddedLen-1])
+	bufLen := paddedLen - padLen
 	return padded[:bufLen], nil
 }
